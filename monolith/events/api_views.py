@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 import json
@@ -25,6 +26,7 @@ class LocationDetailEncoder(ModelEncoder):
 
     def get_extra_data(self, o):
         return {"state": o.state.abbreviation}
+    
 
 
 class ConferenceListEncoder(ModelEncoder):
@@ -48,7 +50,29 @@ class ConferenceDetailEncoder(ModelEncoder):
     encoders = {
         "location": LocationListEncoder(),
     }
+    def get_extra_data(self, o):
+        return {"picture_url": o.location.picture_url}
 
+@require_http_methods(["GET"])
+def api_list_states(request):
+    # Get the states from the database ordered by name
+    if request.method == "GET":
+        states = State.objects.order_by("name")
+        state_list = []
+        for state in states:
+            states_dict = {"name":state.name, "abbreviation": state.abbreviation}
+            state_list.append(states_dict)
+    # Create an empty list named state_list
+
+    # For each state in the states from the database
+        # Create a dictionary that contains the name and
+        # abbreviation for each state
+        # It should return a JsonResponse object that contains 
+        # a dictionary with one key, "states", that 
+        # contains a list of dictionaries of names and abbreviations
+        # Append the dictionary to the list
+
+    return JsonResponse({"states": state_list})
 
 @require_http_methods(["GET", "POST"])
 def api_list_conferences(request):
